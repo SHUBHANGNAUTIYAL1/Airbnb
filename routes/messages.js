@@ -22,7 +22,8 @@ router.post('/send-message', async (req, res) => {
         children,
         message,
         email,
-        name
+        name,
+        hotelUrl
       } = req.body;
   
       const newMessage = new Message({
@@ -35,7 +36,8 @@ router.post('/send-message', async (req, res) => {
         children,
         message,
         email,
-        name
+        name,
+        hotelUrl
       });
   
       const savedMessage = await newMessage.save();
@@ -46,7 +48,7 @@ router.post('/send-message', async (req, res) => {
         from: 'Lake Paradise Website <onboarding@resend.dev>',
         to: ['lakeparadise.al@gmail.com'],
         subject: 'New Message Received',
-        html: `<strong>New message received from ${name}:</strong><br>Email : ${email}<br>Date: ${date}<br>Checkin Date: ${checkinDate}<br>Checkout Date: ${checkoutDate}<br>Promo Code: ${promoCode}<br>Phone Number: ${phoneNumber}<br>Adults: ${adults}<br>Children: ${children}<br>Message: ${message}`,
+        html: `<strong>New message received from ${name}:</strong><br>Email : ${email}<br>Date: ${date}<br>Checkin Date: ${checkinDate}<br>Checkout Date: ${checkoutDate}<br>Promo Code: ${promoCode}<br>Phone Number: ${phoneNumber}<br>Adults: ${adults}<br>Children: ${children}<br>Hotel URL: ${hotelUrl}<br>Message: ${message}`,
       });
   
       if (error) {

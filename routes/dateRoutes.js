@@ -1,7 +1,8 @@
 const express = require("express");
-const dotenv = require("dotenv")
+const dotenv = require("dotenv");
 const User = require('../models/User'); 
 const DateModel = require('../models/DateModel')
+const dateService = require('../services/dateService');
 
 dotenv.config();
 
@@ -69,18 +70,16 @@ router.post('/book-date', async (req, res) => {
 });
 
 
-router.get('/get-all-dates', async (req, res) => {
-  try {
-    
-    const dates = await DateModel.find();
-    res.status(200).json({ success:true, dates });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-});
-
+// router.get('/get-all-dates', async (req, res) => {
+//   try {
+//     const icsUrl = req.query.icsUrl || process.env.ICS_URL;
+//     const booked = await dateService.getDatesFromIcs(icsUrl);
+//     res.status(200).json({ success: true, message: 'Successful', data: booked });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ success: false, message: 'Internal server error' });
+//   }
+// });
 
 
 module.exports = router;

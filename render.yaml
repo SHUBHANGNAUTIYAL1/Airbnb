@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: lake-paradise-admin
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+crons:
+  - id: fetch-airbnb-dates
+    schedule: "0 * * * *"
+    command: "curl -X POST https://<YOUR_RENDER_URL>/cron/fetch-airbnb-dates"
+    timeout: 30
