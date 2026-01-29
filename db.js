@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-const mongoURI = "mongodb+srv://shubhangn:nautiyal@cluster0.figtgch.mongodb.net/?appName=Cluster0";
-
+const mongoURI = process.env.MONGODB_URI;
 
 const connectToMongo = async () => {
   try {
