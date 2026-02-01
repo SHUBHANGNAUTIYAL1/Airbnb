@@ -12,5 +12,5 @@ services:
 crons:
   - id: fetch-airbnb-dates
     schedule: "0 * * * *"
-    command: "curl -X POST https://<YOUR_RENDER_URL>/cron/fetch-airbnb-dates"
+    command: "curl -X POST https://https://airbnb-paak.onrender.com/cron/fetch-airbnb-dates"
     timeout: 30
