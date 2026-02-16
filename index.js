@@ -9,6 +9,7 @@ const dateRoutes = require('./routes/dateRoutes')
 const hotelRoutes = require('./routes/hotelRoutes')
 const messagesRoutes = require('./routes/messages')
 const airbnbRoutes = require('./routes/AirBnbRoute')
+const enquiryRoutes = require('./routes/enquiry')
 const cron = require('node-cron');
 const dateService = require('./services/dateService');
 const airbnbService = require('./services/airbnbService');
@@ -36,6 +37,7 @@ app.use('/date',dateRoutes);
 app.use('/hotel',hotelRoutes);
 app.use('/messages',messagesRoutes);
 app.use('/airbnb',airbnbRoutes);
+app.use('/enquiry',enquiryRoutes);
 
 // Endpoint for Render cron job to trigger fetch
 app.post('/cron/fetch-airbnb-dates', async (req, res) => {

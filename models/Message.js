@@ -35,6 +35,9 @@ const MessageSchema = new mongoose.Schema({
   },
   hotelUrl:{
     type:String
+  },
+  hotelName:{
+    type:String
   }
 });
 
