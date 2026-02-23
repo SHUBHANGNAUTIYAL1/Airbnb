@@ -88,7 +88,23 @@ router.get('/get-airbnb/:hotelurl', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Airbnb not found' });
     }
 
-    res.status(200).json({ success: true, airbnb });
+    // build month array with prices
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const monthPrices = months.map((m, idx) => {
+      // month index 0-based; march (3) -> idx 2, august -> idx 7
+      const isPeak = idx >= 2 && idx <= 7;
+      return {
+        month: m,
+        weekdayPrice: isPeak ? airbnb.weekdayPeakPrice : airbnb.weekdayNonPeakPrice,
+        weekendPrice: isPeak ? airbnb.weekendPeakPrice : airbnb.weekendNonPeakPrice
+      };
+    });
+
+    res.status(200).json({ success: true, airbnb, monthPrices });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
