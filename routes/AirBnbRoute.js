@@ -6,11 +6,20 @@ const router = express.Router();
 // Route to create a new Airbnb with empty dates array
 router.post('/create-airbnb', async (req, res) => {
   try {
-    const { hotelurl, calendarLink, weekdayPeakPrice, weekendPeakPrice, weekdayNonPeakPrice, weekendNonPeakPrice } = req.body;
+    const { hotelurl, calendarLink, weekdayPeakPrice, weekendPeakPrice, weekdayNonPeakPrice, weekendNonPeakPrice, peakStartDate, peakEndDate} = req.body;
 
     if (!hotelurl) {
       return res.status(400).json({ success: false, error: 'hotelurl is required' });
     }
+
+    // normalize helper ensures only month+day are used
+    const normalizeMonthDay = src => {
+      if (!src) return undefined;
+      const d = new Date(src);
+      if (isNaN(d)) return undefined;
+      d.setFullYear(1970);
+      return d;
+    };
 
     const newAirbnb = new AirbnbModel({
       hotelurl,
@@ -19,6 +28,8 @@ router.post('/create-airbnb', async (req, res) => {
       weekendPeakPrice,
       weekdayNonPeakPrice,
       weekendNonPeakPrice,
+      peakStartDate: normalizeMonthDay(peakStartDate),
+      peakEndDate: normalizeMonthDay(peakEndDate),
       dates: [] // Ensure dates array is empty
     });
 
@@ -88,23 +99,7 @@ router.get('/get-airbnb/:hotelurl', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Airbnb not found' });
     }
 
-    // build month array with prices
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
-    const monthPrices = months.map((m, idx) => {
-      // month index 0-based; march (3) -> idx 2, august -> idx 7
-      const isPeak = idx >= 2 && idx <= 7;
-      return {
-        month: m,
-        weekdayPrice: isPeak ? airbnb.weekdayPeakPrice : airbnb.weekdayNonPeakPrice,
-        weekendPrice: isPeak ? airbnb.weekendPeakPrice : airbnb.weekendNonPeakPrice
-      };
-    });
-
-    res.status(200).json({ success: true, airbnb, monthPrices });
+    res.status(200).json({ success: true, airbnb});
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -114,7 +109,7 @@ router.get('/get-airbnb/:hotelurl', async (req, res) => {
 router.patch('/update-prices/:hotelurl', async (req, res) => {
   try {
     const { hotelurl } = req.params;
-    const { weekdayPeakPrice, weekendPeakPrice, weekdayNonPeakPrice, weekendNonPeakPrice } = req.body;
+    const { weekdayPeakPrice, weekendPeakPrice, weekdayNonPeakPrice, weekendNonPeakPrice, peakStartDate, peakEndDate } = req.body;
 
     // Build update object with only provided fields
     const updateData = {};
@@ -122,6 +117,16 @@ router.patch('/update-prices/:hotelurl', async (req, res) => {
     if (weekendPeakPrice !== undefined) updateData.weekendPeakPrice = weekendPeakPrice;
     if (weekdayNonPeakPrice !== undefined) updateData.weekdayNonPeakPrice = weekdayNonPeakPrice;
     if (weekendNonPeakPrice !== undefined) updateData.weekendNonPeakPrice = weekendNonPeakPrice;
+    // normalize month/day dates when provided
+    const normalizeMonthDay = src => {
+      if (!src) return undefined;
+      const d = new Date(src);
+      if (isNaN(d)) return undefined;
+      d.setFullYear(1970);
+      return d;
+    };
+    if (peakStartDate !== undefined) updateData.peakStartDate = normalizeMonthDay(peakStartDate);
+    if (peakEndDate !== undefined) updateData.peakEndDate = normalizeMonthDay(peakEndDate);
 
     // Check if at least one field is provided
     if (Object.keys(updateData).length === 0) {
@@ -139,6 +144,20 @@ router.patch('/update-prices/:hotelurl', async (req, res) => {
     }
 
     res.status(200).json({ success: true, message: 'Prices updated successfully', airbnb: updatedAirbnb });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Route to delete an Airbnb by hotelurl
+router.delete('/delete-airbnb/:hotelurl', async (req, res) => {
+  try {
+    const { hotelurl } = req.params;
+    const deleted = await AirbnbModel.findOneAndDelete({ hotelurl });
+    if (!deleted) {
+      return res.status(404).json({ success: false, error: 'Airbnb not found' });
+    }
+    res.status(200).json({ success: true, message: 'Airbnb deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
